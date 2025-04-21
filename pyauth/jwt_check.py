@@ -30,8 +30,17 @@ _pubk = base64.b64decode(_pubk_B64)
 PUBLIC_KEY = serialization.load_pem_public_key(
    _pubk, backend=default_backend())
 
-with open('auth/permissions_map.py', 'r') as file:
-    permissions = json.load(file, object_hook=lambda d: SimpleNamespace(**d))
+
+def load_module_from_file(file_path):
+   module_namespace = {}
+   with open(file_path, 'r') as file:
+      exec(file.read(), module_namespace)
+   return module_namespace
+
+# Example usage
+file_path = 'auth/permissions_map.py'
+
+permissions = load_module_from_file(file_path)
 
 def __checkJwt(accessToken:str):
 
