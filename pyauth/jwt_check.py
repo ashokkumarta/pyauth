@@ -3,9 +3,10 @@ import os
 import base64
 import time
 import jwt
+import json
+from types import SimpleNamespace
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
-from auth import permissions_map as permissions
 
 PUBLIC_KEY_NAME =  'GLOBAL_PUBLIC_KEY'
 ISSUER_KEY =  'iss'
@@ -28,6 +29,9 @@ _pubk = base64.b64decode(_pubk_B64)
 
 PUBLIC_KEY = serialization.load_pem_public_key(
    _pubk, backend=default_backend())
+
+with open('auth/permissions_map.py', 'r') as file:
+    permissions = json.load(file, object_hook=lambda d: SimpleNamespace(**d))
 
 def __checkJwt(accessToken:str):
 
@@ -57,7 +61,6 @@ def checkAccess(accessToken:str,
    if data not in vJson[ALLOWED_DATA_KEY]:
       raise ValueError(f'Access denied [Not entitled to access requested data {data}]', data)
 
-   # Permission validation
    pageId = permissions.PAGE_MAPPING[page]
    if not pageId:
       raise ValueError(f'Access denied [Invalid page]')
