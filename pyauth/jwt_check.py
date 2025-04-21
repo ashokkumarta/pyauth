@@ -37,9 +37,14 @@ def load_module_from_file(file_path):
       exec(file.read(), module_namespace)
    return module_namespace
 
-# Example usage
-file_path = 'auth/permissions_map.py'
+def find_file_by_name(file_name, search_path):
+    for root, dirs, files in os.walk(search_path):
+        if file_name in files:
+            return os.path.join(root, file_name)
+    return None
 
+file_path = find_file_by_name("permissions_map.py", ".")
+print(f"Loading permissions from: {file_path}")
 permissions = load_module_from_file(file_path)
 
 def __checkJwt(accessToken:str):
