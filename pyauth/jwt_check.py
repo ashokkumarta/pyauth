@@ -5,7 +5,7 @@ import time
 import jwt
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
-from . import permissions_map as permissions
+from auth import permissions_map as permissions
 
 PUBLIC_KEY_NAME =  'GLOBAL_PUBLIC_KEY'
 ISSUER_KEY =  'iss'
