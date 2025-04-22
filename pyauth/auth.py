@@ -8,7 +8,11 @@ AUTH_BRANCH_CODE_KEY =  'auth-branch-code'
 class HasRoleAndDataPermission(permissions.BasePermission):
     def has_permission(self, request, view) -> bool:
         if isSecurityDisabled():
-            print(f'WARNING: Security disabled in this environment [HasRoleAndDataPermission check skipped]\n')
+            print(f'''
+                  WARNING: Security disabled in this environment 
+                  HasRoleAndDataPermission check skipped
+                  auth-user-id & auth-branch-code headers not set
+                ''')
             return True
         try:
             token = request.headers["Authorization"]
@@ -30,7 +34,11 @@ class HasRoleAndDataPermission(permissions.BasePermission):
 class HasDataPermission(permissions.BasePermission):
     def has_permission(self, request, view) -> bool:
         if isSecurityDisabled():
-            print(f'WARNING: Security disabled in this environment [HasDataPermission check skipped]\n')
+            print(f'''
+                  WARNING: Security disabled in this environment 
+                  HasDataPermission check skipped
+                  auth-user-id & auth-branch-code headers not set
+                ''')
             return True
         try:
             token = request.headers["Authorization"]
@@ -50,7 +58,11 @@ class HasDataPermission(permissions.BasePermission):
 class HasRolePermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if isSecurityDisabled():
-            print(f'WARNING: Security disabled in this environment [HasRolePermission check skipped]\n')
+            print(f'''
+                  WARNING: Security disabled in this environment 
+                  HasRolePermission check skipped
+                  auth-user-id headers not set
+                ''')
             return True
         try:
             token = request.headers["Authorization"]
