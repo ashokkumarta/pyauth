@@ -22,7 +22,7 @@ ALLOWED_ACTIONS_KEY = 'allowed-actions'
 AUTHZ_MODEL = 'IMPLIED'
 AUTHZ_MODEL_IMPLIED = 'IMPLIED'
 
-__sec_dsiabled_flag = os.environ[SECURITY_DISABLED_FLAG].lower()
+__sec_dsiabled_flag = os.environ.get(SECURITY_DISABLED_FLAG, "false").lower()
 SECURITY_DISABLED = (__sec_dsiabled_flag == 'true' or __sec_dsiabled_flag == 'yes' or __sec_dsiabled_flag == 'y')
 
 if not SECURITY_DISABLED:
@@ -49,7 +49,7 @@ def __find_file_by_name(file_name, search_path):
 
 file_path = __find_file_by_name("permissions_map.py", ".")
 print(f"Loading permissions from: {file_path}")
-permissions = __load_module_from_file(file_path)
+__permissions = __load_module_from_file(file_path)
 
 def isSecurityDisabled():
    return SECURITY_DISABLED
@@ -111,14 +111,14 @@ def __checkAccessForPageAction(vJson:dict,
                 page:str, 
                 action:str) -> bool:
 
-   pageId = permissions.PAGE_MAPPING[page]
+   pageId = __permissions.PAGE_MAPPING[page]
    if not pageId:
       raise ValueError(f'Access denied [Invalid page]: {pageId}')
 
-   if pageId in permissions.PAGE_ACTION_MAPPING and action in permissions.PAGE_ACTION_MAPPING[pageId]:
-      actionId = permissions.PAGE_ACTION_MAPPING[pageId][action]
+   if pageId in __permissions.PAGE_ACTION_MAPPING and action in __permissions.PAGE_ACTION_MAPPING[pageId]:
+      actionId = __permissions.PAGE_ACTION_MAPPING[pageId][action]
    else:
-      actionId = permissions.GEN_ACTION_MAPPING[action]
+      actionId = __permissions.GEN_ACTION_MAPPING[action]
 
    if not actionId:
       raise ValueError(f'Access denied [Invalid action]: {actionId}')
