@@ -111,14 +111,15 @@ def __checkAccessForPageAction(vJson:dict,
                 page:str, 
                 action:str) -> bool:
 
-   pageId = __permissions.PAGE_MAPPING[page]
+   pageId = __permissions.get("PAGE_MAPPING").get(page, "")
    if not pageId:
       raise ValueError(f'Access denied [Invalid page]: {pageId}')
 
-   if pageId in __permissions.PAGE_ACTION_MAPPING and action in __permissions.PAGE_ACTION_MAPPING[pageId]:
-      actionId = __permissions.PAGE_ACTION_MAPPING[pageId][action]
+
+   if pageId in __permissions.get("PAGE_ACTION_MAPPING") and action in __permissions.get("PAGE_ACTION_MAPPING").get(pageId):
+      actionId = __permissions.get("PAGE_ACTION_MAPPING").get(pageId).get(action)
    else:
-      actionId = __permissions.GEN_ACTION_MAPPING[action]
+      actionId = __permissions.get("GEN_ACTION_MAPPING").get(action)
 
    if not actionId:
       raise ValueError(f'Access denied [Invalid action]: {actionId}')
@@ -134,7 +135,6 @@ def __checkAccessForPageAction(vJson:dict,
                raise ValueError(f'Access denied [Not allowed to perform {action} on {page}]',action, page)
       else:      
          raise ValueError(f'Access denied [Not allowed to perform {action} on {page}]',action, page)
-
    # Allowed access
    return True
 

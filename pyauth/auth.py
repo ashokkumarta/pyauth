@@ -11,7 +11,7 @@ class HasRoleAndDataPermission(permissions.BasePermission):
             print(f'''
                   WARNING: Security disabled in this environment 
                   HasRoleAndDataPermission check skipped
-                  auth-user-id & auth-branch-code headers not set
+                  auth-user-id & auth-branch-code values not set
                 ''')
             return True
         try:
@@ -20,8 +20,8 @@ class HasRoleAndDataPermission(permissions.BasePermission):
             page_path = request.get_full_path()
             http_method = request.method
             vjson = checkAccess(token, branch_code, page_path, http_method)
-            request.headers[AUTH_USERID_KEY] = vjson[AUD_KEY]
-            request.headers[AUTH_BRANCH_CODE_KEY] = branch_code
+            request.data[AUTH_USERID_KEY] = vjson[AUD_KEY]
+            request.data[AUTH_BRANCH_CODE_KEY] = branch_code
             print(f'HasRoleAndDataPermission: Access allowed\n')
             return True
         except ValueError as e:
@@ -37,7 +37,7 @@ class HasDataPermission(permissions.BasePermission):
             print(f'''
                   WARNING: Security disabled in this environment 
                   HasDataPermission check skipped
-                  auth-user-id & auth-branch-code headers not set
+                  auth-user-id & auth-branch-code values not set
                 ''')
             return True
         try:
@@ -61,7 +61,7 @@ class HasRolePermission(permissions.BasePermission):
             print(f'''
                   WARNING: Security disabled in this environment 
                   HasRolePermission check skipped
-                  auth-user-id headers not set
+                  auth-user-id value not set
                 ''')
             return True
         try:
