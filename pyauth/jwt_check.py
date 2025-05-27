@@ -3,8 +3,7 @@ import os
 import base64
 import time
 import jwt
-import json
-from types import SimpleNamespace
+import re
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 
@@ -113,8 +112,12 @@ def __checkAccessForPageAction(vJson:dict,
 
    pageId = __permissions.get("PAGE_MAPPING").get(page, "")
    if not pageId:
+      for p in __permissions.get("PAGE_MAPPING"):
+         if re.search(p, page):
+            pageId = __permissions.get("PAGE_MAPPING").get(p, "")
+            break
+   if not pageId:
       raise ValueError(f'Access denied [Invalid page]: {pageId}')
-
 
    if pageId in __permissions.get("PAGE_ACTION_MAPPING") and action in __permissions.get("PAGE_ACTION_MAPPING").get(pageId):
       actionId = __permissions.get("PAGE_ACTION_MAPPING").get(pageId).get(action)
