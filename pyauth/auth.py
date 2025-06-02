@@ -44,8 +44,8 @@ class HasDataPermission(permissions.BasePermission):
             token = request.headers["Authorization"]
             branch_code = request.headers["Branch-Code"]
             vjson = checkAccessForData(token, branch_code)
-            request.headers[AUTH_USERID_KEY] = vjson[AUD_KEY]
-            request.headers[AUTH_BRANCH_CODE_KEY] = branch_code
+            request.data[AUTH_USERID_KEY] = vjson[AUD_KEY]
+            request.data[AUTH_BRANCH_CODE_KEY] = branch_code
             print(f'HasDataPermission: Access allowed\n')
             return True
         except ValueError as e:
@@ -69,8 +69,8 @@ class HasRolePermission(permissions.BasePermission):
             page_path = request.get_full_path()
             http_method = request.method
             vjson = checkAccessForPageAction(token, page_path, http_method)
-            request.headers[AUTH_USERID_KEY] = vjson[AUD_KEY]
-            request.headers[AUTH_BRANCH_CODE_KEY] = ""
+            request.data[AUTH_USERID_KEY] = vjson[AUD_KEY]
+            request.data[AUTH_BRANCH_CODE_KEY] = ''
             print(f'HasRolePermission: Access allowed\n')
             return True
         except ValueError as e:
