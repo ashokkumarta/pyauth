@@ -13,10 +13,13 @@ ISSUER_KEY =  'iss'
 ISSUER_VALUE =  'https://lab.shinova.in/'
 ISSUED_AT_KEY = "iat"
 EXPIRES_AT_KEY = "exp"
-AUD_KEY = "aud"
-
 ALLOWED_DATA_KEY = 'allowed-data'
 ALLOWED_ACTIONS_KEY = 'allowed-actions'
+
+AUD_KEY = "aud"
+NAME_KEY= "name"
+EMAIL_KEY= "email"
+#ROLE_KEY= "role_name"
 
 AUTHZ_MODEL = 'IMPLIED'
 AUTHZ_MODEL_IMPLIED = 'IMPLIED'
@@ -55,7 +58,7 @@ def isSecurityDisabled():
 
 
 def checkAccess(accessToken:str, 
-                data:str, 
+                data:str, #branch_code
                 page:str, 
                 action:str) -> dict:
 
@@ -140,4 +143,3 @@ def __checkAccessForPageAction(vJson:dict,
          raise ValueError(f'Access denied [Not allowed to perform {action} on {page}]',action, page)
    # Allowed access
    return True
-

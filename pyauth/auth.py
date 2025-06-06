@@ -1,9 +1,20 @@
 from rest_framework import permissions
 from .jwt_check import isSecurityDisabled, checkAccess, checkAccessForData, checkAccessForPageAction
-from .jwt_check import AUD_KEY
+from .jwt_check import AUD_KEY, NAME_KEY, EMAIL_KEY
 
 AUTH_USERID_KEY =  'auth-user-id'
+AUTH_USERNAME_KEY =  'auth-user-name'
+AUTH_USEREMAIL_KEY =  'auth-user-email'
+#AUTH_USERROLE_KEY =  'auth-user-role'
 AUTH_BRANCH_CODE_KEY =  'auth-branch-code'
+
+
+def __set_auth_data(request, authorizedTokenData, authorizedBranch):
+    request.data[AUTH_USERID_KEY] = authorizedTokenData[AUD_KEY]
+    request.data[AUTH_USERNAME_KEY] = authorizedTokenData[NAME_KEY]
+    request.data[AUTH_USEREMAIL_KEY] = authorizedTokenData[EMAIL_KEY]
+    #request.data[AUTH_USERROLE_KEY] = authorizedTokenData[ROLE_KEY]
+    request.data[AUTH_BRANCH_CODE_KEY] = authorizedBranch
 
 class HasRoleAndDataPermission(permissions.BasePermission):
     def has_permission(self, request, view) -> bool:
@@ -20,8 +31,7 @@ class HasRoleAndDataPermission(permissions.BasePermission):
             page_path = request.get_full_path()
             http_method = request.method
             vjson = checkAccess(token, branch_code, page_path, http_method)
-            request.data[AUTH_USERID_KEY] = vjson[AUD_KEY]
-            request.data[AUTH_BRANCH_CODE_KEY] = branch_code
+            __set_auth_data(request, vjson, branch_code)
             print(f'HasRoleAndDataPermission: Access allowed\n')
             return True
         except ValueError as e:
@@ -44,8 +54,7 @@ class HasDataPermission(permissions.BasePermission):
             token = request.headers["Authorization"]
             branch_code = request.headers["Branch-Code"]
             vjson = checkAccessForData(token, branch_code)
-            request.data[AUTH_USERID_KEY] = vjson[AUD_KEY]
-            request.data[AUTH_BRANCH_CODE_KEY] = branch_code
+            __set_auth_data(request, vjson, branch_code)
             print(f'HasDataPermission: Access allowed\n')
             return True
         except ValueError as e:
@@ -69,8 +78,7 @@ class HasRolePermission(permissions.BasePermission):
             page_path = request.get_full_path()
             http_method = request.method
             vjson = checkAccessForPageAction(token, page_path, http_method)
-            request.data[AUTH_USERID_KEY] = vjson[AUD_KEY]
-            request.data[AUTH_BRANCH_CODE_KEY] = ''
+            __set_auth_data(request, vjson, '')
             print(f'HasRolePermission: Access allowed\n')
             return True
         except ValueError as e:
@@ -79,5 +87,3 @@ class HasRolePermission(permissions.BasePermission):
         except:
             print(f'HasRolePermission: Error occured in access validation')
             return False
-
-
