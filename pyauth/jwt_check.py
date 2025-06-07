@@ -19,6 +19,9 @@ ALLOWED_ACTIONS_KEY = 'allowed-actions'
 AUD_KEY = "aud"
 NAME_KEY= "name"
 EMAIL_KEY= "email"
+PAGE_KEY= "page"
+ACTION_KEY= "action"
+PERMISSION_KEY= "permission"
 #ROLE_KEY= "role_name"
 
 AUTHZ_MODEL = 'IMPLIED'
@@ -142,4 +145,39 @@ def __checkAccessForPageAction(vJson:dict,
       else:      
          raise ValueError(f'Access denied [Not allowed to perform {action} on {page}]',action, page)
    # Allowed access
+   vJson[PAGE_KEY] = pageId
+   vJson[ACTION_KEY] = actionId
+   vJson[PERMISSION_KEY] = permissionId
    return True
+
+def validateRoleAccess(allowedActionCodes, pageId, actionId) -> bool:
+
+   if not pageId:
+      print(f'pageId is blank. Not allowed\n')
+      return False
+
+   if not actionId:
+      print(f'actionId is blank. Not allowed\n')
+      return False
+
+   permissionId = pageId + '-' + actionId
+
+   if permissionId not in allowedActionCodes:
+      if AUTHZ_MODEL == AUTHZ_MODEL_IMPLIED:
+         for k in allowedActionCodes:
+            if k.startswith(permissionId):
+               break
+         else:
+            print(f'Does not have implied access. Not allowed\n')
+      else:
+         print(f'Does not have access. Not allowed\n')
+
+   return True
+
+def validateDataAccess(allowedBranchCodes, branchCode) -> bool:
+
+   if not branchCode:
+      print(f'branchCode is blank. Not allowed\n')
+      return False
+
+   return branchCode in allowedBranchCodes
