@@ -13,7 +13,7 @@ AUTH_PERMISSION_ID_KEY =  'auth-permission-id'
 AUTH_ALLOWED_ACTION_CODES_KEY =  'auth-allowed-action-codes'
 AUTH_ALLOWED_BRANCH_CODES_KEY =  'auth-allowed-branch-codes'
 
-def __set_auth_data(request, authorizedTokenData, authorizedBranch):
+def _set_auth_data(request, authorizedTokenData, authorizedBranch):
     request.data[AUTH_USERID_KEY] = authorizedTokenData[AUD_KEY]
     request.data[AUTH_USERNAME_KEY] = authorizedTokenData[NAME_KEY]
     request.data[AUTH_USEREMAIL_KEY] = authorizedTokenData[EMAIL_KEY]
@@ -41,7 +41,7 @@ class HasRoleAndDataPermission(permissions.BasePermission):
             page_path = request.get_full_path()
             http_method = request.method
             vjson = checkAccess(token, branch_code, page_path, http_method)
-            __set_auth_data(request, vjson, branch_code)
+            _set_auth_data(request, vjson, branch_code)
             print(f'HasRoleAndDataPermission: Access allowed\n')
             return True
         except ValueError as e:
@@ -64,7 +64,7 @@ class HasDataPermission(permissions.BasePermission):
             token = request.headers["Authorization"]
             branch_code = request.headers["Branch-Code"]
             vjson = checkAccessForData(token, branch_code)
-            __set_auth_data(request, vjson, branch_code)
+            _set_auth_data(request, vjson, branch_code)
             print(f'HasDataPermission: Access allowed\n')
             return True
         except ValueError as e:
@@ -88,7 +88,7 @@ class HasRolePermission(permissions.BasePermission):
             page_path = request.get_full_path()
             http_method = request.method
             vjson = checkAccessForPageAction(token, page_path, http_method)
-            __set_auth_data(request, vjson, '')
+            _set_auth_data(request, vjson, '')
             print(f'HasRolePermission: Access allowed\n')
             return True
         except ValueError as e:
