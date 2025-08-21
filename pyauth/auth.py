@@ -18,7 +18,8 @@ def _set_auth_data(request, authorizedTokenData, authorizedBranch):
     _mutable = None
     if hasattr(request.data, '_mutable'):
         _mutable = request.data._mutable
-    request.data._mutable = True
+        request.data._mutable = True
+    
     request.data[AUTH_USERID_KEY] = authorizedTokenData[AUD_KEY]
     request.data[AUTH_USERNAME_KEY] = authorizedTokenData[NAME_KEY]
     request.data[AUTH_USEREMAIL_KEY] = authorizedTokenData[EMAIL_KEY]
