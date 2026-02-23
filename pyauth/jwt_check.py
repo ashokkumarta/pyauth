@@ -61,6 +61,10 @@ file_path = __find_file_by_name("permissions_map.py", ".")
 print(f"Loading permissions from: {file_path}")
 __permissions = __load_module_from_file(file_path)
 
+file_path = __find_file_by_name("permissions_master.lst", ".")
+print(f"Loading permissions from: {file_path}")
+crypter.load_permissions(file_path)
+
 def isSecurityDisabled():
    return SECURITY_DISABLED
 

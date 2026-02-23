@@ -3,9 +3,11 @@ import base64
 CRYPT_ALGORITHM_VALUE = "bit_map"
 
 permissions = []
-# read file permisions.txt and create a list of permissions
-with open('auth/permissions_master.lst', 'r') as f:
-    permissions = [line.strip() for line in f.readlines()]
+
+def load_permissions(permissions_file_path: str):
+    global permissions
+    with open(permissions_file_path, 'r') as f:
+        permissions = [line.strip() for line in f.readlines()]
 
 def crypt(actions: list[str] = []) -> tuple[str, str]:
     bitMap = bytes(128)
@@ -41,5 +43,4 @@ def decrypt(base64BitMap: str) -> list[str]:
             actions.append(permissions[i])
 
     return actions
-
 
