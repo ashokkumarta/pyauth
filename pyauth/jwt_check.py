@@ -6,6 +6,8 @@ import jwt
 import re
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
+import jwt_crypter as crypter
+
 
 SECURITY_DISABLED_FLAG =  'SECURITY_DISABLED'
 PUBLIC_KEY_NAME =  'GLOBAL_PUBLIC_KEY'
@@ -15,6 +17,9 @@ ISSUED_AT_KEY = "iat"
 EXPIRES_AT_KEY = "exp"
 ALLOWED_DATA_KEY = 'allowed-data'
 ALLOWED_ACTIONS_KEY = 'allowed-actions'
+CRYPT_ALGORITHM_KEY = "crypt-alg"
+CRYPT_ALGORITHM_VALUE = "bit_map"
+
 
 AUD_KEY = "aud"
 NAME_KEY= "name"
@@ -101,6 +106,11 @@ def __checkJwt(accessToken:str):
    tokenAud = unverified[AUD_KEY]
 
    verified = jwt.decode(accessToken, key=_pubk, algorithms="RS256", audience=tokenAud)
+   
+   # if verified contains CRYPT_ALGORITHM_KEY and its value is CRYPT_ALGORITHM_VALUE, then set the value to CRYPT_ALGORITHM_VALUE
+   if verified.get(CRYPT_ALGORITHM_KEY) and verified[CRYPT_ALGORITHM_KEY] == CRYPT_ALGORITHM_VALUE:
+      verified[ALLOWED_ACTIONS_KEY] = crypter.decrypt(verified[ALLOWED_ACTIONS_KEY])
+   
    return verified
 
 def __checkAccessForData(vJson:dict, 
