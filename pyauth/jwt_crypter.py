@@ -3,11 +3,13 @@ import base64
 CRYPT_ALGORITHM_VALUE = "bit_map"
 
 permissions = []
+perms_hash  = ""
 
 def load_permissions(permissions_file_path: str):
-    global permissions
+    global permissions, perms_hash
     with open(permissions_file_path, 'r') as f:
         permissions = [line.strip() for line in f.readlines()]
+    perms_hash = str(hash(''.join(permissions)))
 
 def crypt(actions: list[str] = []) -> tuple[str, str]:
     bitMap = bytes(128)
@@ -44,3 +46,5 @@ def decrypt(base64BitMap: str) -> list[str]:
 
     return actions
 
+def hash() -> str:
+    return perms_hash

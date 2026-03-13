@@ -19,7 +19,7 @@ ALLOWED_DATA_KEY = 'allowed-data'
 ALLOWED_ACTIONS_KEY = 'allowed-actions'
 CRYPT_ALGORITHM_KEY = "crypt-alg"
 CRYPT_ALGORITHM_VALUE = "bit_map"
-
+CRYPT_HASH_KEY = "crypt-hash"
 
 AUD_KEY = "aud"
 NAME_KEY= "name"
@@ -28,6 +28,7 @@ PAGE_KEY= "page"
 ACTION_KEY= "action"
 PERMISSION_KEY= "permission"
 #ROLE_KEY= "role_name"
+HOSPITAL_CODE_KEY =  'hospital-code'
 
 AUTHZ_MODEL = 'IMPLIED'
 AUTHZ_MODEL_IMPLIED = 'IMPLIED'
@@ -109,12 +110,20 @@ def __checkJwt(accessToken:str):
 
    tokenAud = unverified[AUD_KEY]
 
+   hospitalCode = unverified.get(HOSPITAL_CODE_KEY, '')
+   if not hospitalCode:
+      raise ValueError(f'Invalid access token [Token does not have valid hospital code]')
+
+   criptHash = unverified.get(CRYPT_HASH_KEY)
+   if criptHash != crypter.hash():
+      raise ValueError(f'Invalid access token [Permissions have been changed. Please login again]')
+
    verified = jwt.decode(accessToken, key=_pubk, algorithms="RS256", audience=tokenAud)
-   
+
    # if verified contains CRYPT_ALGORITHM_KEY and its value is CRYPT_ALGORITHM_VALUE, then set the value to CRYPT_ALGORITHM_VALUE
    if verified.get(CRYPT_ALGORITHM_KEY) and verified[CRYPT_ALGORITHM_KEY] == CRYPT_ALGORITHM_VALUE:
       verified[ALLOWED_ACTIONS_KEY] = crypter.decrypt(verified[ALLOWED_ACTIONS_KEY])
-   
+
    return verified
 
 def __checkAccessForData(vJson:dict, 
