@@ -17,9 +17,8 @@ ISSUED_AT_KEY = "iat"
 EXPIRES_AT_KEY = "exp"
 ALLOWED_DATA_KEY = 'allowed-data'
 ALLOWED_ACTIONS_KEY = 'allowed-actions'
-CRYPT_ALGORITHM_KEY = "crypt-alg"
+CRYPT_KEY = "crypt"
 CRYPT_ALGORITHM_VALUE = "bit_map"
-CRYPT_HASH_KEY = "crypt-hash"
 
 AUD_KEY = "aud"
 NAME_KEY= "name"
@@ -45,26 +44,6 @@ if not SECURITY_DISABLED:
 
    PUBLIC_KEY = serialization.load_pem_public_key(
       _pubk, backend=default_backend())
-
-def __load_module_from_file(file_path):
-   module_namespace = {}
-   with open(file_path, 'r') as file:
-      exec(file.read(), module_namespace)
-   return module_namespace
-
-def __find_file_by_name(file_name, search_path):
-    for root, dirs, files in os.walk(search_path):
-        if file_name in files:
-            return os.path.join(root, file_name)
-    return None
-
-file_path = __find_file_by_name("permissions_map.py", ".")
-print(f"Loading permissions from: {file_path}")
-__permissions = __load_module_from_file(file_path)
-
-file_path = __find_file_by_name("permissions_master.lst", ".")
-print(f"Loading permissions from: {file_path}")
-crypter.load_permissions(file_path)
 
 def isSecurityDisabled():
    return SECURITY_DISABLED
@@ -114,16 +93,19 @@ def __checkJwt(accessToken:str):
    if not hospitalCode:
       raise ValueError(f'Invalid access token [Token does not have valid hospital code]')
 
-   criptHash = unverified.get(CRYPT_HASH_KEY)
-   if criptHash != crypter.hash():
-      raise ValueError(f'Invalid access token [Permissions have been changed. Please login again]')
-
    verified = jwt.decode(accessToken, key=_pubk, algorithms="RS256", audience=tokenAud)
 
-   # if verified contains CRYPT_ALGORITHM_KEY and its value is CRYPT_ALGORITHM_VALUE, then set the value to CRYPT_ALGORITHM_VALUE
-   if verified.get(CRYPT_ALGORITHM_KEY) and verified[CRYPT_ALGORITHM_KEY] == CRYPT_ALGORITHM_VALUE:
-      verified[ALLOWED_ACTIONS_KEY] = crypter.decrypt(verified[ALLOWED_ACTIONS_KEY])
-
+   crypt = verified.get(CRYPT_KEY, "")
+   if crypt:
+      # split crypt value to get algorithm and value
+      cryptParts = crypt.split(':')
+      if len(cryptParts) == 3:
+         cAlgo = cryptParts[0]
+         permsVer  = cryptParts[1]
+         permsHash = cryptParts[2]
+         if cAlgo == CRYPT_ALGORITHM_VALUE:
+            if crypter.supported(permsVer, permsHash): 
+               verified[ALLOWED_ACTIONS_KEY] = crypter.decrypt(permsHash, verified[ALLOWED_ACTIONS_KEY])
    return verified
 
 def __checkAccessForData(vJson:dict, 
