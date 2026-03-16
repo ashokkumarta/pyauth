@@ -1,16 +1,10 @@
 import base64
 import os
+import requests
 
 CRYPT_ALGORITHM_VALUE = "bit_map"
-pfn = "permissions_master"
-pfx = ".lst"
-
-
-def __find_file_by_name(file_name, search_path):
-    for root, dirs, files in os.walk(search_path):
-        if file_name in files:
-            return os.path.join(root, file_name)
-    return None
+PERMS_BASE_URL = "https://raw.githubusercontent.com/SMRFT/Login_security_backend/refs/heads/release/auth/permissions_master"
+PERMS_EXT = ".lst"
 
 # initialize map
 master_permissions = {}
@@ -20,19 +14,15 @@ def __load_permissions(permVer=""):
     global master_permissions
     master_versions.add(permVer)
 
-    fn = pfn + (f"_{permVer}" if permVer else "") + pfx
-    permissions_file_path = __find_file_by_name(fn, os.getcwd())
+    fullUrl = f"{PERMS_BASE_URL}_{permVer}{PERMS_EXT}" if permVer else f"{PERMS_BASE_URL}{PERMS_EXT}"
 
-    if not permissions_file_path:
-        raise ValueError(f'Permissions file not found: {permVer}')
+    response = requests.get(fullUrl)
+    if response.status_code != 200:
+        raise ValueError(f'Failed to retrieve permissions file: {fullUrl}')
 
-    perms = []
-    with open(permissions_file_path, 'r') as f:
-        perms = [line.strip() for line in f.readlines()]
+    perms = [line.strip() for line in response.text.splitlines()]
     perms_hash = str(hash(''.join(perms)))
     master_permissions[perms_hash] = perms
-
-
 
 def crypt(permsHash: str, actions: list[str] = []) -> tuple[str, str]:
     bitMap = bytes(128)
@@ -59,8 +49,6 @@ def decrypt(permsHash: str, base64BitMap: str) -> list[str]:
     # decode base64 to bytes
     bitMap = base64.b64decode(base64BitMap.encode('utf-8'))
     actions = []
-    
-    print(bitMap)
 
     permissions = master_permissions.get(permsHash)
 
