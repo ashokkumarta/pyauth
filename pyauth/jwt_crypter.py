@@ -3,18 +3,20 @@ import os
 import requests
 
 CRYPT_ALGORITHM_VALUE = "bit_map"
-PERMS_BASE_URL = "https://raw.githubusercontent.com/SMRFT/Login_security_backend/refs/heads/release/auth/permissions_master"
+env = os.getenv('ENV_CLASSIFICATION')
+PERMS_BASE_URL = "https://raw.githubusercontent.com/SMRFT/Permissions_master/refs/heads/"
+PERMS_BASE_PATH = "/auth/permissions_master"
 PERMS_EXT = ".lst"
 
 # initialize map
 master_permissions = {}
 master_versions = set()
 
-def __load_permissions(permVer=""):
+def __load_permissions(env: str, permVer=""):
     global master_permissions
     master_versions.add(permVer)
 
-    fullUrl = f"{PERMS_BASE_URL}_{permVer}{PERMS_EXT}" if permVer else f"{PERMS_BASE_URL}{PERMS_EXT}"
+    fullUrl = f"{PERMS_BASE_URL}{env}{PERMS_BASE_PATH}_{permVer}{PERMS_EXT}" if permVer else f"{PERMS_BASE_URL}{env}{PERMS_BASE_PATH}{PERMS_EXT}"
 
     response = requests.get(fullUrl)
     if response.status_code != 200:
@@ -22,36 +24,18 @@ def __load_permissions(permVer=""):
 
     perms = [line.strip() for line in response.text.splitlines()]
     perms_hash = str(hash(''.join(perms)))
-    master_permissions[perms_hash] = perms
+    perms_key = f"{env}_{perms_hash}"
+    master_permissions[perms_key] = perms
 
-def crypt(permsHash: str, actions: list[str] = []) -> tuple[str, str]:
-    bitMap = bytes(128)
-    permissions = master_permissions.get(permsHash)
-
-    for action in actions:
-        if action not in permissions:
-            continue
-        
-        position = permissions.index(action)
-        #Get the byte at the position
-        bytePosition = position // 8
-        bitPosition = position % 8
-
-        #set bit position to 1
-        currentByte = bitMap[bytePosition]
-        bitMap = bitMap[:bytePosition] + bytes([currentByte | (1 << (7 - bitPosition))]) + bitMap[bytePosition+1:]  
- 
-    # base64 encode the bitmap
-    base64BitMap = base64.b64encode(bitMap).decode('utf-8')
-    return CRYPT_ALGORITHM_VALUE, base64BitMap
-
-def decrypt(permsHash: str, base64BitMap: str) -> list[str]:
+def decrypt(env: str, permsHash: str, base64BitMap: str) -> list[str]:
+    global master_permissions
     # decode base64 to bytes
     bitMap = base64.b64decode(base64BitMap.encode('utf-8'))
     actions = []
 
-    permissions = master_permissions.get(permsHash)
-
+    perms_key = f"{env}_{permsHash}"
+    permissions = master_permissions.get(perms_key)
+    
     # reverse the bitmap to get actions
     for i in range(len(bitMap)*8):
         bytePosition = i // 8
@@ -61,11 +45,13 @@ def decrypt(permsHash: str, base64BitMap: str) -> list[str]:
 
     return actions
 
-def supported(permsVer: str, permsHash: str) -> bool:
-    if permsHash in master_permissions:
+def supported(env: str, permsVer: str, permsHash: str) -> bool:
+    global master_permissions
+    perms_key = f"{env}_{permsHash}"
+    if perms_key in master_permissions:
         return True
     elif permsVer in master_versions:
         raise ValueError(f'Permissions file not found: {permsVer}')
     else:
-        __load_permissions(permsVer)
-        return permsHash in master_permissions
+        __load_permissions(env, permsVer)
+        return perms_key in master_permissions

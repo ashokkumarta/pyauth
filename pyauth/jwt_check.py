@@ -99,13 +99,14 @@ def __checkJwt(accessToken:str):
    if crypt:
       # split crypt value to get algorithm and value
       cryptParts = crypt.split(':')
-      if len(cryptParts) == 3:
-         cAlgo = cryptParts[0]
-         permsVer  = cryptParts[1]
-         permsHash = cryptParts[2]
+      if len(cryptParts) == 4:
+         env = cryptParts[0]
+         cAlgo = cryptParts[1]
+         permsVer  = cryptParts[2]
+         permsHash = cryptParts[3]
          if cAlgo == CRYPT_ALGORITHM_VALUE:
-            if crypter.supported(permsVer, permsHash): 
-               verified[ALLOWED_ACTIONS_KEY] = crypter.decrypt(permsHash, verified[ALLOWED_ACTIONS_KEY])
+            if crypter.supported(env, permsVer, permsHash): 
+               verified[ALLOWED_ACTIONS_KEY] = crypter.decrypt(env, permsHash, verified[ALLOWED_ACTIONS_KEY])
    return verified
 
 def __checkAccessForData(vJson:dict, 
