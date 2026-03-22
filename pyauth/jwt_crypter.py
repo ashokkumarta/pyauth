@@ -2,11 +2,13 @@ import base64
 import os
 import requests
 
-CRYPT_ALGORITHM_VALUE = "bit_map"
-env = os.getenv('ENV_CLASSIFICATION')
 PERMS_BASE_URL = "https://raw.githubusercontent.com/SMRFT/Permissions_master/refs/heads/"
 PERMS_BASE_PATH = "/auth/permissions_master"
 PERMS_EXT = ".lst"
+
+osEnv = os.getenv('ENV_CLASSIFICATION')
+if osEnv != 'prod':
+    osEnv = 'test'
 
 # initialize map
 master_permissions = {}
@@ -47,6 +49,12 @@ def decrypt(env: str, permsHash: str, base64BitMap: str) -> list[str]:
 
 def supported(env: str, permsVer: str, permsHash: str) -> bool:
     global master_permissions
+    global master_versions
+    global osEnv
+
+    if osEnv != env:
+        return False
+
     perms_key = f"{env}_{permsHash}"
     if perms_key in master_permissions:
         return True
