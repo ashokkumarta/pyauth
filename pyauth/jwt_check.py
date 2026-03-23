@@ -6,7 +6,7 @@ import jwt
 import re
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
-import jwt_crypter as crypter
+from .jwt_crypter import supported, decrypt
 
 
 SECURITY_DISABLED_FLAG =  'SECURITY_DISABLED'
@@ -118,8 +118,8 @@ def __checkJwt(accessToken:str):
          permsVer  = cryptParts[2]
          permsHash = cryptParts[3]
          if cAlgo == CRYPT_ALGORITHM_VALUE:
-            if crypter.supported(env, permsVer, permsHash): 
-               verified[ALLOWED_ACTIONS_KEY] = crypter.decrypt(env, permsHash, verified[ALLOWED_ACTIONS_KEY])
+            if supported(env, permsVer, permsHash): 
+               verified[ALLOWED_ACTIONS_KEY] = decrypt(env, permsHash, verified[ALLOWED_ACTIONS_KEY])
    return verified
 
 def __checkAccessForData(vJson:dict, 
