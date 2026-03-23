@@ -45,6 +45,19 @@ if not SECURITY_DISABLED:
    PUBLIC_KEY = serialization.load_pem_public_key(
       _pubk, backend=default_backend())
 
+def __load_module_from_file(file_path):
+   module_namespace = {}
+   with open(file_path, 'r') as file:
+      exec(file.read(), module_namespace)
+   return module_namespace
+
+def __find_file_by_name(file_name, search_path):
+    return None
+
+file_path = __find_file_by_name("permissions_map.py", ".")
+print(f"Loading permissions from: {file_path}")
+__permissions = __load_module_from_file(file_path)
+
 def isSecurityDisabled():
    return SECURITY_DISABLED
 
