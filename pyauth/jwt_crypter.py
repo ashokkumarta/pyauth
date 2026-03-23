@@ -1,6 +1,7 @@
 import base64
 import os
 import requests
+import hashlib
 
 PERMS_BASE_URL = "https://raw.githubusercontent.com/SMRFT/Permissions_master/refs/heads/"
 PERMS_BASE_PATH = "/auth/permissions_master"
@@ -25,7 +26,8 @@ def __load_permissions(env: str, permVer=""):
         raise ValueError(f'Failed to retrieve permissions file: {fullUrl}')
 
     perms = [line.strip() for line in response.text.splitlines()]
-    perms_hash = str(hash(''.join(perms)))
+    perms_hash = hashlib.sha256(''.join(perms).encode()).hexdigest()
+
     perms_key = f"{env}_{perms_hash}"
     master_permissions[perms_key] = perms
 
