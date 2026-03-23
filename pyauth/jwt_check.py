@@ -27,7 +27,7 @@ PAGE_KEY= "page"
 ACTION_KEY= "action"
 PERMISSION_KEY= "permission"
 #ROLE_KEY= "role_name"
-HOSPITAL_CODE_KEY =  'hospital-code'
+HOSPITAL_CODE_KEY =  'hospital_code'
 
 AUTHZ_MODEL = 'IMPLIED'
 AUTHZ_MODEL_IMPLIED = 'IMPLIED'
