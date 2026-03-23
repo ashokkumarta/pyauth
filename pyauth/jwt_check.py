@@ -52,6 +52,9 @@ def __load_module_from_file(file_path):
    return module_namespace
 
 def __find_file_by_name(file_name, search_path):
+    for root, dirs, files in os.walk(search_path):
+        if file_name in files:
+            return os.path.join(root, file_name)
     return None
 
 file_path = __find_file_by_name("permissions_map.py", ".")
