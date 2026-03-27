@@ -17,6 +17,7 @@ ISSUED_AT_KEY = "iat"
 EXPIRES_AT_KEY = "exp"
 ALLOWED_DATA_KEY = 'allowed-data'
 ALLOWED_ACTIONS_KEY = 'allowed-actions'
+ALLOWED_OUTLETS_KEY = 'allowed-outlets'
 CRYPT_KEY = "crypt"
 CRYPT_ALGORITHM_VALUE = "bit_map"
 
@@ -82,6 +83,13 @@ def checkAccessForData(accessToken:str,
    __checkAccessForData(vJson, data)
    return vJson
 
+def checkAccessForOutlet(accessToken:str, 
+                outlet:str) -> dict:
+
+   vJson = __checkJwt(accessToken)
+   __checkAccessForOutlet(vJson, outlet)
+   return vJson
+
 
 def checkAccessForPageAction(accessToken:str, 
                 page:str, 
@@ -131,6 +139,16 @@ def __checkAccessForData(vJson:dict,
    # Data validation
    if data not in vJson[ALLOWED_DATA_KEY]:
       raise ValueError(f'Access denied [Not entitled to access requested data {data}]', data)
+   return True
+
+def __checkAccessForOutlet(vJson:dict, 
+                outlet:str) -> bool:
+
+   if not vJson[ALLOWED_OUTLETS_KEY]:
+      raise ValueError(f'Access denied [Not entitled to access any outlet]', outlet)
+   # Outlet validation
+   if outlet not in vJson[ALLOWED_OUTLETS_KEY]:
+      raise ValueError(f'Access denied [Not entitled to access requested outlet {outlet}]', outlet)
    return True
 
 
