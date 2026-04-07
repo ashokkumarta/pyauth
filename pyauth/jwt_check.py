@@ -69,18 +69,25 @@ def isSecurityDisabled():
 def checkAccess(accessToken:str, 
                 data:str, #branch_code
                 page:str, 
-                action:str) -> dict:
+                action:str, 
+                outlet:str = '') -> dict:
 
    vJson = __checkJwt(accessToken)
+   
    __checkAccessForData(vJson, data)
+   if outlet:
+      __checkAccessForOutlet(vJson, outlet)
+
    __checkAccessForPageAction(vJson, page, action)
    return vJson
 
 def checkAccessForData(accessToken:str, 
-                data:str) -> dict:
+                data:str, outlet:str = '') -> dict:
 
    vJson = __checkJwt(accessToken)
    __checkAccessForData(vJson, data)
+   if outlet:
+      __checkAccessForOutlet(vJson, outlet)
    return vJson
 
 def checkAccessForOutlet(accessToken:str, 
