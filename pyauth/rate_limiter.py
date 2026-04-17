@@ -1,4 +1,4 @@
-from pyrate_limiter import Duration, Limiter, Rate, BucketFullException
+from pyrate_limiter import Duration, Limiter, Rate
 import os
 
 # Default configuration for rate limits, can be overridden by environment variable
@@ -51,7 +51,7 @@ def check_quota(user_id: str) -> tuple[bool, str]:
         # Proceed with your logic
         print("Rate limit applied:", user_id)
         return True, "Allowed"
-    except BucketFullException as err:
+    except Exception as err:
         msg = f"Rate limit exceeded: Try again in {err.meta_info['wait_time']}s"
         print(msg + " for user:", user_id)
         return False, msg
