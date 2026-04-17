@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
    name='pyauth',
-   version='1.3.1-rl',
+   version='2.0.0',
    description='Enfore simple access control policy for REST API, and also support rate limit',
    author='Ashokkumar T.A',
    author_email='ashokkumar.ta@gmail.com',
