@@ -7,7 +7,7 @@ import re
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 from .jwt_crypter import supported, decrypt
-from rate_limiter import check_quota
+from .rate_limiter import check_quota
 
 SECURITY_DISABLED_FLAG =  'SECURITY_DISABLED'
 PUBLIC_KEY_NAME =  'GLOBAL_PUBLIC_KEY'
