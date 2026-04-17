@@ -7,7 +7,7 @@ import re
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 from .jwt_crypter import supported, decrypt
-
+from rate_limiter import check_quota
 
 SECURITY_DISABLED_FLAG =  'SECURITY_DISABLED'
 PUBLIC_KEY_NAME =  'GLOBAL_PUBLIC_KEY'
@@ -119,6 +119,10 @@ def __checkJwt(accessToken:str):
       raise ValueError(f'Invalid access token [Token expired]')
 
    tokenAud = unverified[AUD_KEY]
+
+   allowed, message = check_quota(tokenAud)
+   if not allowed:
+      raise ValueError(f'Too Many Requests. {message}')
 
    hospitalCode = unverified.get(HOSPITAL_CODE_KEY, '')
    if not hospitalCode:
