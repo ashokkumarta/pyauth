@@ -3,11 +3,14 @@ import os
 
 # Default configuration for rate limits, can be overridden by environment variable
 RATE_LIMIT_CONFIG = 'RATE_LIMIT_CONFIG'
+RATE_LIMIT_IDS = 'RATE_LIMIT_IDS'
 default_rate_limit_min = 5
 default_rate_limit_hour = 100
 default_rate_limit_day = 1000
 
-__rate_limit_config = os.environ.get(RATE_LIMIT_CONFIG, f"{default_rate_limit_min},{default_rate_limit_hour},{default_rate_limit_day}").lower()
+__rate_limit_config = os.environ.get(RATE_LIMIT_CONFIG, f"{default_rate_limit_min},{default_rate_limit_hour},{default_rate_limit_day}")
+__rate_limit_ids = os.environ.get(RATE_LIMIT_IDS, "SCC_Xternal_001").split(',')  # Comma-separated list of IDs to apply rate limits to 
+
 
 # validate __rate_limit_config
 # split by comma and check if each value is int
@@ -40,12 +43,15 @@ rates = [
 limiter = Limiter(rates)
 
 def check_quota(user_id: str) -> tuple[bool, str]:
+    if user_id not in __rate_limit_ids:
+        print("Rate limit not applicable:", user_id)
+        return True, "Allowed"
     try:
         limiter.try_acquire(user_id)
         # Proceed with your logic
-        print("Request successful")
+        print("Rate limit applied:", user_id)
         return True, "Allowed"
     except BucketFullException as err:
-        msg = f"Rate limit exceeded. Try again in {err.meta_info['wait_time']}s"
-        print(msg)
+        msg = f"Rate limit exceeded: Try again in {err.meta_info['wait_time']}s"
+        print(msg + " for user:", user_id)
         return False, msg
